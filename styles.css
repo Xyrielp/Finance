@@ -395,6 +395,139 @@ body {
     margin-left: 0;
 }
 
+/* Reports */
+.report-controls {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+}
+
+.report-controls select {
+    flex: 1;
+    min-width: 120px;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    background: white;
+}
+
+.report {
+    background: white;
+    padding: 20px;
+    border-radius: 12px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+}
+
+.report h2 {
+    margin-bottom: 20px;
+    color: #333;
+    text-align: center;
+}
+
+.report-summary {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 15px;
+    margin-bottom: 30px;
+}
+
+.summary-card {
+    padding: 15px;
+    border-radius: 8px;
+    text-align: center;
+}
+
+.summary-card.income {
+    background: #d4edda;
+    border: 1px solid #c3e6cb;
+}
+
+.summary-card.expense {
+    background: #f8d7da;
+    border: 1px solid #f5c6cb;
+}
+
+.summary-card.balance.positive {
+    background: #d1ecf1;
+    border: 1px solid #bee5eb;
+}
+
+.summary-card.balance.negative {
+    background: #f8d7da;
+    border: 1px solid #f5c6cb;
+}
+
+.summary-card h3 {
+    font-size: 0.9rem;
+    margin-bottom: 8px;
+    color: #666;
+}
+
+.summary-card p {
+    font-size: 1.2rem;
+    font-weight: bold;
+    margin: 0;
+}
+
+.category-breakdown, .monthly-breakdown {
+    margin-bottom: 20px;
+}
+
+.category-breakdown h3, .monthly-breakdown h3 {
+    margin-bottom: 15px;
+    color: #333;
+}
+
+.category-item {
+    display: flex;
+    justify-content: space-between;
+    padding: 8px 0;
+    border-bottom: 1px solid #eee;
+}
+
+.month-item {
+    margin-bottom: 15px;
+    padding: 15px;
+    background: #f8f9fa;
+    border-radius: 8px;
+}
+
+.month-item h4 {
+    margin-bottom: 8px;
+    color: #333;
+}
+
+.month-stats {
+    display: flex;
+    gap: 15px;
+    flex-wrap: wrap;
+    font-size: 0.9rem;
+}
+
+.month-stats .income {
+    color: #28a745;
+}
+
+.month-stats .expense {
+    color: #dc3545;
+}
+
+.month-stats .balance.positive {
+    color: #17a2b8;
+}
+
+.month-stats .balance.negative {
+    color: #dc3545;
+}
+
+.transaction-count {
+    text-align: center;
+    padding-top: 20px;
+    border-top: 1px solid #eee;
+    color: #666;
+}
+
 /* Modal */
 .modal {
     display: none;

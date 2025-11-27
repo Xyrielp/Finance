@@ -16,6 +16,7 @@ class FinanceTracker {
         this.renderBudgetCategories();
         this.renderGoals();
         this.setupChart();
+        this.setupReports();
     }
 
     setupEventListeners() {
@@ -46,6 +47,9 @@ class FinanceTracker {
         // Filters
         document.getElementById('filterType').addEventListener('change', () => this.renderTransactions());
         document.getElementById('filterPeriod').addEventListener('change', () => this.renderTransactions());
+        
+        // Reports
+        document.getElementById('reportType').addEventListener('change', () => this.setupReportPeriods());
 
         // Set default date to today
         const dateInput = document.getElementById('date');
@@ -75,6 +79,11 @@ class FinanceTracker {
         // Update chart if switching to dashboard
         if (tabName === 'dashboard') {
             setTimeout(() => this.updateChart(), 100);
+        }
+        
+        // Setup reports if switching to reports
+        if (tabName === 'reports') {
+            this.setupReportPeriods();
         }
     }
 
@@ -465,6 +474,172 @@ class FinanceTracker {
         this.updateDashboard();
     }
 
+    setupReports() {
+        this.setupReportPeriods();
+    }
+    
+    setupReportPeriods() {
+        const reportType = document.getElementById('reportType').value;
+        const periodSelect = document.getElementById('reportPeriod');
+        const now = new Date();
+        
+        if (reportType === 'monthly') {
+            const months = [];
+            for (let i = 0; i < 12; i++) {
+                const date = new Date(now.getFullYear(), now.getMonth() - i, 1);
+                months.push({
+                    value: `${date.getFullYear()}-${date.getMonth()}`,
+                    text: date.toLocaleDateString('en-US', { month: 'long', year: 'numeric' })
+                });
+            }
+            periodSelect.innerHTML = months.map(m => `<option value="${m.value}">${m.text}</option>`).join('');
+        } else {
+            const years = [];
+            for (let i = 0; i < 5; i++) {
+                const year = now.getFullYear() - i;
+                years.push(year);
+            }
+            periodSelect.innerHTML = years.map(y => `<option value="${y}">${y}</option>`).join('');
+        }
+    }
+    
+    generateReport() {
+        const reportType = document.getElementById('reportType').value;
+        const period = document.getElementById('reportPeriod').value;
+        
+        if (reportType === 'monthly') {
+            this.generateMonthlyReport(period);
+        } else {
+            this.generateYearlyReport(period);
+        }
+    }
+    
+    generateMonthlyReport(period) {
+        const [year, month] = period.split('-').map(Number);
+        const monthlyTransactions = this.transactions.filter(t => {
+            const date = new Date(t.date);
+            return date.getFullYear() === year && date.getMonth() === month;
+        });
+        
+        const income = monthlyTransactions.filter(t => t.type === 'income').reduce((sum, t) => sum + t.amount, 0);
+        const expenses = monthlyTransactions.filter(t => t.type === 'expense').reduce((sum, t) => sum + t.amount, 0);
+        const balance = income - expenses;
+        
+        const categoryBreakdown = {};
+        monthlyTransactions.filter(t => t.type === 'expense').forEach(t => {
+            categoryBreakdown[t.category] = (categoryBreakdown[t.category] || 0) + t.amount;
+        });
+        
+        this.renderReport({
+            title: `Monthly Report - ${new Date(year, month).toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}`,
+            income,
+            expenses,
+            balance,
+            categoryBreakdown,
+            transactions: monthlyTransactions
+        });
+    }
+    
+    generateYearlyReport(year) {
+        const yearlyTransactions = this.transactions.filter(t => {
+            return new Date(t.date).getFullYear() === parseInt(year);
+        });
+        
+        const income = yearlyTransactions.filter(t => t.type === 'income').reduce((sum, t) => sum + t.amount, 0);
+        const expenses = yearlyTransactions.filter(t => t.type === 'expense').reduce((sum, t) => sum + t.amount, 0);
+        const balance = income - expenses;
+        
+        const monthlyBreakdown = {};
+        for (let i = 0; i < 12; i++) {
+            const monthTransactions = yearlyTransactions.filter(t => {
+                return new Date(t.date).getMonth() === i;
+            });
+            const monthIncome = monthTransactions.filter(t => t.type === 'income').reduce((sum, t) => sum + t.amount, 0);
+            const monthExpenses = monthTransactions.filter(t => t.type === 'expense').reduce((sum, t) => sum + t.amount, 0);
+            monthlyBreakdown[new Date(parseInt(year), i).toLocaleDateString('en-US', { month: 'short' })] = {
+                income: monthIncome,
+                expenses: monthExpenses,
+                balance: monthIncome - monthExpenses
+            };
+        }
+        
+        const categoryBreakdown = {};
+        yearlyTransactions.filter(t => t.type === 'expense').forEach(t => {
+            categoryBreakdown[t.category] = (categoryBreakdown[t.category] || 0) + t.amount;
+        });
+        
+        this.renderReport({
+            title: `Yearly Report - ${year}`,
+            income,
+            expenses,
+            balance,
+            categoryBreakdown,
+            monthlyBreakdown,
+            transactions: yearlyTransactions
+        });
+    }
+    
+    renderReport(data) {
+        const container = document.getElementById('reportContent');
+        
+        let html = `
+            <div class="report">
+                <h2>${data.title}</h2>
+                
+                <div class="report-summary">
+                    <div class="summary-card income">
+                        <h3>Total Income</h3>
+                        <p>${this.formatCurrency(data.income)}</p>
+                    </div>
+                    <div class="summary-card expense">
+                        <h3>Total Expenses</h3>
+                        <p>${this.formatCurrency(data.expenses)}</p>
+                    </div>
+                    <div class="summary-card balance ${data.balance >= 0 ? 'positive' : 'negative'}">
+                        <h3>Net Balance</h3>
+                        <p>${this.formatCurrency(data.balance)}</p>
+                    </div>
+                </div>
+                
+                <div class="category-breakdown">
+                    <h3>Expenses by Category</h3>
+                    ${Object.entries(data.categoryBreakdown).map(([category, amount]) => `
+                        <div class="category-item">
+                            <span>${category}</span>
+                            <span>${this.formatCurrency(amount)}</span>
+                        </div>
+                    `).join('')}
+                </div>
+        `;
+        
+        if (data.monthlyBreakdown) {
+            html += `
+                <div class="monthly-breakdown">
+                    <h3>Monthly Breakdown</h3>
+                    ${Object.entries(data.monthlyBreakdown).map(([month, data]) => `
+                        <div class="month-item">
+                            <h4>${month}</h4>
+                            <div class="month-stats">
+                                <span class="income">Income: ${this.formatCurrency(data.income)}</span>
+                                <span class="expense">Expenses: ${this.formatCurrency(data.expenses)}</span>
+                                <span class="balance ${data.balance >= 0 ? 'positive' : 'negative'}">Balance: ${this.formatCurrency(data.balance)}</span>
+                            </div>
+                        </div>
+                    `).join('')}
+                </div>
+            `;
+        }
+        
+        html += `
+                <div class="transaction-count">
+                    <p>Total Transactions: ${data.transactions.length}</p>
+                </div>
+            </div>
+        `;
+        
+        container.innerHTML = html;
+    }
+
     saveData() {
         localStorage.setItem('transactions', JSON.stringify(this.transactions));
         localStorage.setItem('budgetCategories', JSON.stringify(this.budgetCategories));
@@ -519,6 +694,10 @@ function deleteGoal(id) {
     if (confirm('Delete this goal?')) {
         app.deleteGoal(id);
     }
+}
+
+function generateReport() {
+    app.generateReport();
 }
 
 // Initialize app
