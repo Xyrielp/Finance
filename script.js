@@ -1,8 +1,15 @@
 class FinanceTracker {
     constructor() {
-        this.transactions = JSON.parse(localStorage.getItem('transactions')) || [];
-        this.budgetCategories = JSON.parse(localStorage.getItem('budgetCategories')) || [];
-        this.goals = JSON.parse(localStorage.getItem('goals')) || [];
+        try {
+            this.transactions = JSON.parse(localStorage.getItem('transactions') || '[]');
+            this.budgetCategories = JSON.parse(localStorage.getItem('budgetCategories') || '[]');
+            this.goals = JSON.parse(localStorage.getItem('goals') || '[]');
+        } catch (e) {
+            console.error('Error loading data:', e);
+            this.transactions = [];
+            this.budgetCategories = [];
+            this.goals = [];
+        }
         this.expenseCategories = ['Food', 'Transportation', 'Entertainment', 'Shopping', 'Bills', 'Healthcare', 'Other'];
         this.incomeCategories = ['Salary', 'Freelance', 'Investment', 'Gift', 'Other'];
         
@@ -88,32 +95,42 @@ class FinanceTracker {
     }
 
     addTransaction() {
-        const type = document.getElementById('transactionType').value;
-        const amount = parseFloat(document.getElementById('amount').value);
-        const description = document.getElementById('description').value;
-        const category = document.getElementById('category').value;
-        const date = document.getElementById('date').value;
+        try {
+            const type = document.getElementById('transactionType').value;
+            const amount = parseFloat(document.getElementById('amount').value);
+            const description = document.getElementById('description').value;
+            const category = document.getElementById('category').value;
+            const date = document.getElementById('date').value;
 
-        const transaction = {
-            id: Date.now(),
-            type,
-            amount,
-            description,
-            category,
-            date,
-            timestamp: new Date().toISOString()
-        };
+            if (!type || isNaN(amount) || !description || !category || !date) {
+                alert('Please fill all fields correctly');
+                return;
+            }
 
-        this.transactions.unshift(transaction);
-        this.saveData();
-        this.updateDashboard();
-        this.renderTransactions();
-        this.updateChart();
-        this.closeModal('transactionModal');
-        document.getElementById('transactionForm').reset();
-        const dateInput = document.getElementById('date');
-        if (dateInput) {
-            dateInput.valueAsDate = new Date();
+            const transaction = {
+                id: Date.now(),
+                type,
+                amount,
+                description,
+                category,
+                date,
+                timestamp: new Date().toISOString()
+            };
+
+            this.transactions.unshift(transaction);
+            this.saveData();
+            this.updateDashboard();
+            this.renderTransactions();
+            this.updateChart();
+            this.closeModal('transactionModal');
+            document.getElementById('transactionForm').reset();
+            const dateInput = document.getElementById('date');
+            if (dateInput) {
+                dateInput.valueAsDate = new Date();
+            }
+        } catch (e) {
+            console.error('Error adding transaction:', e);
+            alert('Error adding transaction. Please try again.');
         }
     }
 
@@ -387,30 +404,37 @@ class FinanceTracker {
     }
 
     setupChart() {
-        const ctx = document.getElementById('expenseChart').getContext('2d');
-        this.chart = new Chart(ctx, {
-            type: 'doughnut',
-            data: {
-                labels: [],
-                datasets: [{
-                    data: [],
-                    backgroundColor: [
-                        '#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0',
-                        '#9966FF', '#FF9F40', '#FF6384', '#C9CBCF'
-                    ]
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: {
-                        position: 'bottom'
+        try {
+            const canvas = document.getElementById('expenseChart');
+            if (!canvas) return;
+            
+            const ctx = canvas.getContext('2d');
+            this.chart = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: [],
+                    datasets: [{
+                        data: [],
+                        backgroundColor: [
+                            '#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0',
+                            '#9966FF', '#FF9F40', '#FF6384', '#C9CBCF'
+                        ]
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom'
+                        }
                     }
                 }
-            }
-        });
-        this.updateChart();
+            });
+            this.updateChart();
+        } catch (e) {
+            console.error('Error setting up chart:', e);
+        }
     }
 
     updateChart() {
@@ -641,29 +665,43 @@ class FinanceTracker {
     }
 
     saveData() {
-        localStorage.setItem('transactions', JSON.stringify(this.transactions));
-        localStorage.setItem('budgetCategories', JSON.stringify(this.budgetCategories));
-        localStorage.setItem('goals', JSON.stringify(this.goals));
+        try {
+            localStorage.setItem('transactions', JSON.stringify(this.transactions));
+            localStorage.setItem('budgetCategories', JSON.stringify(this.budgetCategories));
+            localStorage.setItem('goals', JSON.stringify(this.goals));
+        } catch (e) {
+            console.error('Error saving data:', e);
+            alert('Error saving data. Storage may be full.');
+        }
     }
 }
 
 // Global functions for modal handling
 function openTransactionModal(type) {
-    const modal = document.getElementById('transactionModal');
-    const title = document.getElementById('modalTitle');
-    const typeInput = document.getElementById('transactionType');
-    const categorySelect = document.getElementById('category');
+    try {
+        const modal = document.getElementById('transactionModal');
+        const title = document.getElementById('modalTitle');
+        const typeInput = document.getElementById('transactionType');
+        const categorySelect = document.getElementById('category');
 
-    typeInput.value = type;
-    title.textContent = type === 'income' ? 'Add Income' : 'Add Expense';
+        if (!modal || !title || !typeInput || !categorySelect) {
+            console.error('Modal elements not found');
+            return;
+        }
 
-    // Populate categories
-    const categories = type === 'income' ? app.incomeCategories : app.expenseCategories;
-    categorySelect.innerHTML = categories.map(cat => 
-        `<option value="${cat}">${cat}</option>`
-    ).join('');
+        typeInput.value = type;
+        title.textContent = type === 'income' ? 'Add Income' : 'Add Expense';
 
-    modal.classList.add('active');
+        // Populate categories
+        const categories = type === 'income' ? app.incomeCategories : app.expenseCategories;
+        categorySelect.innerHTML = categories.map(cat => 
+            `<option value="${cat}">${cat}</option>`
+        ).join('');
+
+        modal.classList.add('active');
+    } catch (e) {
+        console.error('Error opening modal:', e);
+    }
 }
 
 function openBudgetModal() {
@@ -700,5 +738,20 @@ function generateReport() {
     app.generateReport();
 }
 
-// Initialize app
-const app = new FinanceTracker();
+// Initialize app with error handling
+let app;
+try {
+    app = new FinanceTracker();
+} catch (e) {
+    console.error('Failed to initialize app:', e);
+    document.body.innerHTML = '<div style="padding:20px;text-align:center;"><h2>Error loading app</h2><p>Please refresh the page</p></div>';
+}
+
+// Global error handler
+window.addEventListener('error', (e) => {
+    console.error('Global error:', e.error);
+});
+
+window.addEventListener('unhandledrejection', (e) => {
+    console.error('Unhandled promise rejection:', e.reason);
+});
