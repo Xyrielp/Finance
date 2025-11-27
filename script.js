@@ -24,6 +24,32 @@ class FinanceTracker {
         this.renderGoals();
         this.setupChart();
         this.setupReports();
+        this.checkOnlineStatus();
+    }
+    
+    checkOnlineStatus() {
+        const updateOnlineStatus = () => {
+            const statusIndicator = document.getElementById('onlineStatus') || this.createStatusIndicator();
+            if (navigator.onLine) {
+                statusIndicator.textContent = '';
+                statusIndicator.style.display = 'none';
+            } else {
+                statusIndicator.textContent = '📴 Offline Mode';
+                statusIndicator.style.display = 'block';
+            }
+        };
+        
+        window.addEventListener('online', updateOnlineStatus);
+        window.addEventListener('offline', updateOnlineStatus);
+        updateOnlineStatus();
+    }
+    
+    createStatusIndicator() {
+        const indicator = document.createElement('div');
+        indicator.id = 'onlineStatus';
+        indicator.style.cssText = 'position:fixed;top:50px;right:10px;z-index:1000;padding:8px 12px;background:#ff9800;color:white;border-radius:6px;font-size:12px;display:none';
+        document.body.appendChild(indicator);
+        return indicator;
     }
 
     setupEventListeners() {
@@ -408,6 +434,12 @@ class FinanceTracker {
             const canvas = document.getElementById('expenseChart');
             if (!canvas) return;
             
+            // Check if Chart.js is available
+            if (typeof Chart === 'undefined') {
+                canvas.parentElement.innerHTML = '<p style="text-align:center;color:#666;padding:20px;">Charts unavailable offline</p>';
+                return;
+            }
+            
             const ctx = canvas.getContext('2d');
             this.chart = new Chart(ctx, {
                 type: 'doughnut',
@@ -434,6 +466,10 @@ class FinanceTracker {
             this.updateChart();
         } catch (e) {
             console.error('Error setting up chart:', e);
+            const canvas = document.getElementById('expenseChart');
+            if (canvas) {
+                canvas.parentElement.innerHTML = '<p style="text-align:center;color:#666;padding:20px;">Charts unavailable</p>';
+            }
         }
     }
 
