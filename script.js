@@ -48,7 +48,19 @@ class FinanceTracker {
         document.getElementById('filterPeriod').addEventListener('change', () => this.renderTransactions());
 
         // Set default date to today
-        document.getElementById('date').valueAsDate = new Date();
+        const dateInput = document.getElementById('date');
+        if (dateInput) {
+            dateInput.valueAsDate = new Date();
+        }
+        
+        // Modal close on backdrop click
+        document.querySelectorAll('.modal').forEach(modal => {
+            modal.addEventListener('click', (e) => {
+                if (e.target === modal) {
+                    modal.classList.remove('active');
+                }
+            });
+        });
     }
 
     switchTab(tabName) {
@@ -90,7 +102,10 @@ class FinanceTracker {
         this.updateChart();
         this.closeModal('transactionModal');
         document.getElementById('transactionForm').reset();
-        document.getElementById('date').valueAsDate = new Date();
+        const dateInput = document.getElementById('date');
+        if (dateInput) {
+            dateInput.valueAsDate = new Date();
+        }
     }
 
     addBudgetCategory() {
@@ -196,6 +211,9 @@ class FinanceTracker {
                 <div class="transaction-amount ${transaction.type}">
                     ${transaction.type === 'income' ? '+' : '-'}${this.formatCurrency(transaction.amount)}
                 </div>
+                <button class="delete-btn" onclick="deleteTransaction(${transaction.id})">
+                    <i class="fas fa-trash"></i>
+                </button>
             </div>
         `).join('');
     }
@@ -251,6 +269,9 @@ class FinanceTracker {
                 <div class="transaction-amount ${transaction.type}">
                     ${transaction.type === 'income' ? '+' : '-'}${this.formatCurrency(transaction.amount)}
                 </div>
+                <button class="delete-btn" onclick="deleteTransaction(${transaction.id})">
+                    <i class="fas fa-trash"></i>
+                </button>
             </div>
         `).join('');
     }
@@ -289,6 +310,9 @@ class FinanceTracker {
                         ${percentage.toFixed(1)}% used
                         ${isOverBudget ? `(${this.formatCurrency(category.spent - category.limit)} over)` : ''}
                     </div>
+                    <button class="delete-btn" onclick="deleteBudgetCategory(${category.id})">
+                        <i class="fas fa-trash"></i>
+                    </button>
                 </div>
             `;
         }).join('');
@@ -330,6 +354,9 @@ class FinanceTracker {
                     <div class="goal-actions">
                         <button class="btn-small" onclick="app.addToGoal(${goal.id})">
                             Add Money
+                        </button>
+                        <button class="btn-small delete-btn" onclick="deleteGoal(${goal.id})">
+                            <i class="fas fa-trash"></i>
                         </button>
                     </div>
                 </div>
@@ -417,6 +444,27 @@ class FinanceTracker {
         });
     }
 
+    deleteTransaction(id) {
+        this.transactions = this.transactions.filter(t => t.id !== id);
+        this.saveData();
+        this.updateDashboard();
+        this.renderTransactions();
+        this.updateChart();
+    }
+    
+    deleteBudgetCategory(id) {
+        this.budgetCategories = this.budgetCategories.filter(c => c.id !== id);
+        this.saveData();
+        this.renderBudgetCategories();
+    }
+    
+    deleteGoal(id) {
+        this.goals = this.goals.filter(g => g.id !== id);
+        this.saveData();
+        this.renderGoals();
+        this.updateDashboard();
+    }
+
     saveData() {
         localStorage.setItem('transactions', JSON.stringify(this.transactions));
         localStorage.setItem('budgetCategories', JSON.stringify(this.budgetCategories));
@@ -453,6 +501,24 @@ function openGoalModal() {
 
 function closeModal(modalId) {
     document.getElementById(modalId).classList.remove('active');
+}
+
+function deleteTransaction(id) {
+    if (confirm('Delete this transaction?')) {
+        app.deleteTransaction(id);
+    }
+}
+
+function deleteBudgetCategory(id) {
+    if (confirm('Delete this budget category?')) {
+        app.deleteBudgetCategory(id);
+    }
+}
+
+function deleteGoal(id) {
+    if (confirm('Delete this goal?')) {
+        app.deleteGoal(id);
+    }
 }
 
 // Initialize app

@@ -368,6 +368,33 @@ body {
     color: white;
 }
 
+.delete-btn {
+    background: #dc3545;
+    border: none;
+    color: white;
+    padding: 8px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.8rem;
+    margin-left: 8px;
+}
+
+.delete-btn:hover {
+    background: #c82333;
+}
+
+.transaction-item {
+    position: relative;
+}
+
+.transaction-item .delete-btn {
+    position: absolute;
+    right: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    margin-left: 0;
+}
+
 /* Modal */
 .modal {
     display: none;
