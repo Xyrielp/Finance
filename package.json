@@ -1,0 +1,13 @@
+{
+  "name": "finance-tracker",
+  "version": "1.0.0",
+  "description": "Personal finance and budget tracker",
+  "main": "index.html",
+  "scripts": {
+    "start": "serve .",
+    "build": "echo 'Static site - no build needed'"
+  },
+  "keywords": ["finance", "budget", "tracker", "pwa"],
+  "author": "",
+  "license": "MIT"
+}

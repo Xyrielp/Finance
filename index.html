@@ -240,8 +240,8 @@
         // Enable service worker for offline functionality
         if ('serviceWorker' in navigator) {
             navigator.serviceWorker.register('./sw.js')
-                .then(() => console.log('SW registered - App works offline'))
-                .catch(() => console.log('SW registration failed'));
+                .then(() => console.log('SW registered'))
+                .catch((error) => console.log('SW registration failed:', error));
         }
         
         // PWA Install prompt
