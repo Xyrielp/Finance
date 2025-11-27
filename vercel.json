@@ -1,5 +1,5 @@
 {
-  "buildCommand": "cp index.html out/index.html && cp -r * out/ 2>/dev/null || true",
-  "outputDirectory": ".",
-  "framework": null
+  "framework": null,
+  "buildCommand": null,
+  "outputDirectory": "."
 }
