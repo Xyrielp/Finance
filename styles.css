@@ -98,8 +98,12 @@ body {
     display: flex;
     background: white;
     border-top: 1px solid #eee;
-    position: sticky;
+    position: fixed;
     bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 100%;
+    max-width: 428px;
     z-index: 100;
 }
 
@@ -131,7 +135,8 @@ body {
 .tab-content {
     display: none;
     padding: 20px;
-    padding-bottom: 80px;
+    padding-bottom: 100px;
+    min-height: calc(100vh - 200px);
 }
 
 .tab-content.active {
@@ -389,10 +394,15 @@ body {
 
 .transaction-item .delete-btn {
     position: absolute;
-    right: 0;
+    right: 10px;
     top: 50%;
     transform: translateY(-50%);
     margin-left: 0;
+    z-index: 10;
+}
+
+.transaction-item {
+    padding-right: 50px;
 }
 
 /* Reports */

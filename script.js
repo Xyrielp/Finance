@@ -164,6 +164,17 @@ class FinanceTracker {
         const name = document.getElementById('budgetCategory').value;
         const limit = parseFloat(document.getElementById('budgetLimit').value);
 
+        if (!name || isNaN(limit) || limit <= 0) {
+            alert('Please enter valid category name and limit');
+            return;
+        }
+
+        // Check for duplicate category names
+        if (this.budgetCategories.some(cat => cat.name.toLowerCase() === name.toLowerCase())) {
+            alert('Category already exists');
+            return;
+        }
+
         const category = {
             id: Date.now(),
             name,
@@ -182,6 +193,17 @@ class FinanceTracker {
         const name = document.getElementById('goalName').value;
         const target = parseFloat(document.getElementById('goalTarget').value);
         const deadline = document.getElementById('goalDeadline').value;
+
+        if (!name || isNaN(target) || target <= 0 || !deadline) {
+            alert('Please fill all fields correctly');
+            return;
+        }
+
+        // Check if deadline is in the future
+        if (new Date(deadline) <= new Date()) {
+            alert('Deadline must be in the future');
+            return;
+        }
 
         const goal = {
             id: Date.now(),
@@ -418,14 +440,22 @@ class FinanceTracker {
 
     addToGoal(goalId) {
         const amount = prompt('How much would you like to add to this goal?');
-        if (amount && !isNaN(amount)) {
+        if (amount && !isNaN(amount) && parseFloat(amount) > 0) {
             const goal = this.goals.find(g => g.id === goalId);
             if (goal) {
-                goal.current += parseFloat(amount);
+                const addAmount = parseFloat(amount);
+                if (goal.current + addAmount > goal.target) {
+                    if (!confirm(`This will exceed your goal by ${this.formatCurrency(goal.current + addAmount - goal.target)}. Continue?`)) {
+                        return;
+                    }
+                }
+                goal.current += addAmount;
                 this.saveData();
                 this.renderGoals();
                 this.updateDashboard();
             }
+        } else if (amount !== null) {
+            alert('Please enter a valid positive amount');
         }
     }
 
@@ -632,6 +662,17 @@ class FinanceTracker {
     renderReport(data) {
         const container = document.getElementById('reportContent');
         
+        if (data.transactions.length === 0) {
+            container.innerHTML = `
+                <div class="empty-state">
+                    <i class="fas fa-chart-line"></i>
+                    <h3>No data for this period</h3>
+                    <p>Add some transactions to generate reports</p>
+                </div>
+            `;
+            return;
+        }
+        
         let html = `
             <div class="report">
                 <h2>${data.title}</h2>
@@ -650,7 +691,10 @@ class FinanceTracker {
                         <p>${this.formatCurrency(data.balance)}</p>
                     </div>
                 </div>
-                
+        `;
+        
+        if (Object.keys(data.categoryBreakdown).length > 0) {
+            html += `
                 <div class="category-breakdown">
                     <h3>Expenses by Category</h3>
                     ${Object.entries(data.categoryBreakdown).map(([category, amount]) => `
@@ -660,19 +704,20 @@ class FinanceTracker {
                         </div>
                     `).join('')}
                 </div>
-        `;
+            `;
+        }
         
         if (data.monthlyBreakdown) {
             html += `
                 <div class="monthly-breakdown">
                     <h3>Monthly Breakdown</h3>
-                    ${Object.entries(data.monthlyBreakdown).map(([month, data]) => `
+                    ${Object.entries(data.monthlyBreakdown).map(([month, monthData]) => `
                         <div class="month-item">
                             <h4>${month}</h4>
                             <div class="month-stats">
-                                <span class="income">Income: ${this.formatCurrency(data.income)}</span>
-                                <span class="expense">Expenses: ${this.formatCurrency(data.expenses)}</span>
-                                <span class="balance ${data.balance >= 0 ? 'positive' : 'negative'}">Balance: ${this.formatCurrency(data.balance)}</span>
+                                <span class="income">Income: ${this.formatCurrency(monthData.income)}</span>
+                                <span class="expense">Expenses: ${this.formatCurrency(monthData.expenses)}</span>
+                                <span class="balance ${monthData.balance >= 0 ? 'positive' : 'negative'}">Balance: ${this.formatCurrency(monthData.balance)}</span>
                             </div>
                         </div>
                     `).join('')}
@@ -731,15 +776,24 @@ function openTransactionModal(type) {
 }
 
 function openBudgetModal() {
-    document.getElementById('budgetModal').classList.add('active');
+    const modal = document.getElementById('budgetModal');
+    if (modal) {
+        modal.classList.add('active');
+    }
 }
 
 function openGoalModal() {
-    document.getElementById('goalModal').classList.add('active');
+    const modal = document.getElementById('goalModal');
+    if (modal) {
+        modal.classList.add('active');
+    }
 }
 
 function closeModal(modalId) {
-    document.getElementById(modalId).classList.remove('active');
+    const modal = document.getElementById(modalId);
+    if (modal) {
+        modal.classList.remove('active');
+    }
 }
 
 function deleteTransaction(id) {
