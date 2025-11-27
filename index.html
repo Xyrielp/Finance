@@ -13,24 +13,7 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
     <link rel="icon" type="image/x-icon" href="favicon.ico">
     <link rel="stylesheet" href="styles.css">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-    <style>
-        /* Fallback icons if Font Awesome fails to load */
-        .fas:before { content: '•'; }
-        .fa-wallet:before { content: '💼'; }
-        .fa-arrow-up:before { content: '↑'; }
-        .fa-arrow-down:before { content: '↓'; }
-        .fa-piggy-bank:before { content: '🐷'; }
-        .fa-chart-pie:before { content: '📊'; }
-        .fa-list:before { content: '📋'; }
-        .fa-calculator:before { content: '🧮'; }
-        .fa-target:before { content: '🎯'; }
-        .fa-chart-line:before { content: '📈'; }
-        .fa-plus:before { content: '+'; }
-        .fa-minus:before { content: '-'; }
-        .fa-times:before { content: '×'; }
-        .fa-trash:before { content: '🗑'; }
-    </style>
+    <link href="fontawesome.min.css" rel="stylesheet">
 </head>
 <body>
     <div class="app">
@@ -251,7 +234,7 @@
         </div>
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/chart.js" onerror="this.remove(); console.log('Chart.js failed to load - charts disabled')"></script>
+    <script src="chart.min.js"></script>
     <script src="script.js"></script>
     <script>
         // Enable service worker for offline functionality

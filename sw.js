@@ -1,4 +1,4 @@
-const CACHE_NAME = 'finance-tracker-v2';
+const CACHE_NAME = 'finance-tracker-v3';
 const urlsToCache = [
   './',
   './index.html',
@@ -7,7 +7,9 @@ const urlsToCache = [
   './manifest.json',
   './favicon.ico',
   './icon-192.png',
-  './icon-512.png'
+  './icon-512.png',
+  './chart.min.js',
+  './fontawesome.min.css'
 ];
 
 self.addEventListener('install', event => {

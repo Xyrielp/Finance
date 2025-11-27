@@ -434,12 +434,6 @@ class FinanceTracker {
             const canvas = document.getElementById('expenseChart');
             if (!canvas) return;
             
-            // Check if Chart.js is available
-            if (typeof Chart === 'undefined') {
-                canvas.parentElement.innerHTML = '<p style="text-align:center;color:#666;padding:20px;">Charts unavailable offline</p>';
-                return;
-            }
-            
             const ctx = canvas.getContext('2d');
             this.chart = new Chart(ctx, {
                 type: 'doughnut',
@@ -466,10 +460,6 @@ class FinanceTracker {
             this.updateChart();
         } catch (e) {
             console.error('Error setting up chart:', e);
-            const canvas = document.getElementById('expenseChart');
-            if (canvas) {
-                canvas.parentElement.innerHTML = '<p style="text-align:center;color:#666;padding:20px;">Charts unavailable</p>';
-            }
         }
     }
 
