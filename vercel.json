@@ -1,8 +1,5 @@
 {
-  "rewrites": [
-    {
-      "source": "/(.*)",
-      "destination": "/index.html"
-    }
-  ]
+  "buildCommand": "cp index.html out/index.html && cp -r * out/ 2>/dev/null || true",
+  "outputDirectory": ".",
+  "framework": null
 }

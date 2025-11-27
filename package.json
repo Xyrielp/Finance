@@ -4,8 +4,9 @@
   "description": "Personal finance and budget tracker",
   "main": "index.html",
   "scripts": {
+    "build": "cp -r . out/ || xcopy . out\ /E /I",
     "start": "serve .",
-    "build": "echo 'Static site - no build needed'"
+    "export": "next build && next export"
   },
   "keywords": ["finance", "budget", "tracker", "pwa"],
   "author": "",
