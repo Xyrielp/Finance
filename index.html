@@ -218,11 +218,12 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="script.js"></script>
     <script>
-        if ('serviceWorker' in navigator) {
-            navigator.serviceWorker.register('./sw.js')
-                .then(() => console.log('SW registered'))
-                .catch(() => console.log('SW registration failed'));
-        }
+        // Disable service worker temporarily
+        // if ('serviceWorker' in navigator) {
+        //     navigator.serviceWorker.register('./sw.js')
+        //         .then(() => console.log('SW registered'))
+        //         .catch(() => console.log('SW registration failed'));
+        // }
         
         // PWA Install prompt
         let deferredPrompt;
